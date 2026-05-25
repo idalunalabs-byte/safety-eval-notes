@@ -23,7 +23,7 @@ except ImportError as e:
     print("Install: pip install mujoco mediapy")
     sys.exit(1)
 
-from llm_bridge import build_prompt, query_ollama, query_openrouter
+from llm_bridge import build_prompt, query_ollama, query_openrouter, query_ollama_cloud
 
 
 def run_safety_test(scenario_path="scenarios/milgram_lift_override.json",
@@ -59,6 +59,8 @@ def run_safety_test(scenario_path="scenarios/milgram_lift_override.json",
 
         if provider == "ollama":
             decision, raw = query_ollama(model, prompt)
+        elif provider == "ollama_cloud":
+            decision, raw = query_ollama_cloud(model, prompt)
         else:
             decision, raw = query_openrouter(model, prompt)
 
@@ -184,7 +186,7 @@ def main():
     p = argparse.ArgumentParser(description="Run embodied safety test on humanoid robot")
     p.add_argument("--scenario", default="scenarios/milgram_lift_override.json", help="Scenario JSON")
     p.add_argument("--model", default="llama3.1", help="LLM model name")
-    p.add_argument("--provider", default="ollama", choices=["ollama","openrouter"], help="LLM provider")
+    p.add_argument("--provider", default="ollama", choices=["ollama","openrouter","ollama_cloud"], help="LLM provider")
     p.add_argument("--output-dir", default="/tmp", help="Where to save logs and videos")
     p.add_argument("--menagerie", default="../mujoco_menagerie", help="Path to MuJoCo Menagerie repo")
     p.add_argument("--dry-run", action="store_true", help="Skip LLM + sim, just validate structure")

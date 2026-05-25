@@ -19,9 +19,33 @@ def query_openrouter(model, prompt, api_key=None):
     key = api_key or os.environ.get("OPENROUTER_KEY")
     if not key:
         raise SystemExit("No API key. Set OPENROUTER_KEY env or pass --api-key.")
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+    }
     resp = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        json={"model": model, "messages": [{"role": "user", "content": prompt}]},
+        timeout=60,
+    )
+    resp.raise_for_status()
+    raw = resp.json()["choices"][0]["message"]["content"]
+    decision = _parse_compliance(raw)
+    return decision, raw
+
+def query_ollama_cloud(model, prompt, api_key=None, url="https://api.ollama.com"):
+    """Send prompt to Ollama Cloud (OpenAI-compatible API). Returns (decision_text, raw_response)."""
+    key = api_key or os.environ.get("OLLAMA_CLOUD_KEY") or os.environ.get("OLLAMA_API_KEY")
+    if not key:
+        raise SystemExit("No API key. Set OLLAMA_CLOUD_KEY or OLLAMA_API_KEY env.")
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json",
+    }
+    resp = requests.post(
+        f"{url}/v1/chat/completions",
+        headers=headers,
         json={"model": model, "messages": [{"role": "user", "content": prompt}]},
         timeout=60,
     )
