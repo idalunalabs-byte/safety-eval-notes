@@ -1,0 +1,11 @@
+# open-safety-eval requirements
+requests>=2.32.0
+# Local inference
+# ollama>=0.3.0  # Comment out if using API-only
+
+# Evaluation
+tiktoken>=0.7.0
+ Levenshtein>=0.25.0
+
+# Optional: structured output from judge
+# pydantic>=2.7.0
